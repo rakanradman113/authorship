@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% set active = 'compare' %}
+{% block title %}Compare texts{% endblock %}
+{% block content %}
+<h1>Compare texts</h1>
+{% if pairs %}
+<p class="summary">{{ pairs|length }} pairs · strongest matches first · click a pair to see what made up its score</p>
+{% endif %}
+
+{% if message %}<div class="notice {{ level }}">{{ message }}</div>{% endif %}
+{% if unusual %}
+<div class="notice warning">
+  {% if unusual|length == 1 %}<strong>{{ unusual[0] }}</strong> is very unlike every other text{% else %}<strong>{{ unusual|join(", ") }}</strong> are very unlike every other text{% endif %}
+  (for example a list, a table or a different language). Texts like this can make the other texts look more alike than they are. Consider removing {{ "it" if unusual|length == 1 else "them" }}.
+</div>
+{% endif %}
+
+{% if excluded %}
+<div class="notice muted">Left out (too short): {{ excluded|map(attribute=0)|join(", ") }}</div>
+{% endif %}
+
+{% macro pair_card(p) %}
+<details class="pair {{ p.label }}">
+  <summary>
+    <span class="names">{{ p.a }} <span class="amp">&amp;</span> {{ p.b }}</span>
+    <span class="score">{{ "%.1f"|format(p.score) }}<span class="of"> / 100</span></span>
+    <span class="tag {{ p.label }}">{{ p.label_words }}</span>
+  </summary>
+  {% if p.identical %}<p class="pair-note">These texts are identical in every measured feature.</p>{% endif %}
+  <table class="breakdown">
+    <thead><tr><th>What was compared</th><th class="right">Score</th><th class="right">Weight</th><th class="right">Points</th></tr></thead>
+    <tbody>
+    {% for r in p.rows %}
+      <tr>
+        <td>{{ r.name }}{% if r.note %}<span class="note">{{ r.note }}</span>{% endif %}</td>
+        <td class="right">{{ "%.1f"|format(r.score) if r.score is not none else "—" }}</td>
+        <td class="right">{{ r.weight }}%</td>
+        <td class="right">{{ "%.1f"|format(r.points) }}</td>
+      </tr>
+    {% endfor %}
+      <tr class="total"><td>Total</td><td></td><td></td><td class="right">{{ "%.1f"|format(p.score) }}</td></tr>
+    </tbody>
+  </table>
+</details>
+{% endmacro %}
+
+{% for p in pairs if p.label != 'unlikely' %}{{ pair_card(p) }}{% endfor %}
+
+{% set unlikely = pairs|selectattr('label', 'equalto', 'unlikely')|list %}
+{% if unlikely %}
+<details class="fold">
+  <summary>Show unlikely pairs ({{ unlikely|length }})</summary>
+  {% for p in unlikely %}{{ pair_card(p) }}{% endfor %}
+</details>
+{% endif %}
+{% endblock %}

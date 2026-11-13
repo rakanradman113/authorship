@@ -1,0 +1,15 @@
+# Python's own cache files
+__pycache__/
+*.pyc
+
+# The project's virtual environment (specific to each computer)
+.venv/
+
+# Downloaded test books (re-create with: python3 download_books.py real_books)
+real_books/
+
+# Generated test texts (re-create with generator.py)
+test_texts/
+
+# macOS folder files
+.DS_Store

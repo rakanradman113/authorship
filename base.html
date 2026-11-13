@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Scripta{% endblock %} · Scripta</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-name">Scripta</div>
+      <div class="brand-sub">Authorship research</div>
+    </div>
+    <nav>
+      <a href="{{ url_for('collection_page') }}" class="{{ 'active' if active == 'collection' }}">Text collection</a>
+      <a href="{{ url_for('compare_page') }}" class="{{ 'active' if active == 'compare' }}">Compare texts</a>
+      <a href="{{ url_for('groups_page') }}" class="{{ 'active' if active == 'groups' }}">Authorship groups</a>
+    </nav>
+    <div class="sidebar-note">
+      Texts stay on this computer and are cleared when the program closes.
+    </div>
+  </aside>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

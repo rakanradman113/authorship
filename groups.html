@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% set active = 'groups' %}
+{% block title %}Authorship groups{% endblock %}
+{% block content %}
+<h1>Authorship groups</h1>
+{% if ready %}
+<p class="summary">{{ groups|length }} group{{ '' if groups|length == 1 else 's' }} ·
+  {{ alone|length }} text{{ '' if alone|length == 1 else 's' }} not in any group ·
+  groups are leads to investigate, not confirmed authors</p>
+{% endif %}
+
+{% if message %}<div class="notice {{ level }}">{{ message }}</div>{% endif %}
+{% if unusual %}
+<div class="notice warning">
+  {% if unusual|length == 1 %}<strong>{{ unusual[0] }}</strong> is very unlike every other text{% else %}<strong>{{ unusual|join(", ") }}</strong> are very unlike every other text{% endif %}
+  (for example a list, a table or a different language). Texts like this can make the other texts look more alike than they are. Consider removing {{ "it" if unusual|length == 1 else "them" }}.
+</div>
+{% endif %}
+
+{% if excluded %}
+<div class="notice muted">Left out (too short): {{ excluded|map(attribute=0)|join(", ") }}</div>
+{% endif %}
+
+{% if ready and not groups %}
+<div class="card empty-card">No texts in this collection are similar enough to group. See <a href="{{ url_for('compare_page') }}">Compare texts</a> for every pair's score.</div>
+{% endif %}
+
+{% for g in groups %}
+<section class="card group">
+  <h2>Group {{ g.number }}</h2>
+  {% for set in g.sets %}
+    <div class="members">
+      <span class="tag likely">Likely same author</span>
+      <ul>{% for name in set %}<li>{{ name }}</li>{% endfor %}</ul>
+    </div>
+  {% endfor %}
+  {% if g.connected %}
+    <p class="connect">These {{ g.sets|length }} sets are possibly by the same author too.</p>
+  {% endif %}
+  {% if g.possible %}
+    <div class="members">
+      <span class="tag possible">Possibly same author</span>
+      <ul>{% for name in g.possible %}<li>{{ name }}</li>{% endfor %}</ul>
+    </div>
+  {% endif %}
+  <p class="group-foot">Every pair of texts in this group scores at least {{ "%.1f"|format(g.lowest) }} / 100.</p>
+</section>
+{% endfor %}
+
+{% if notes %}
+<section class="card">
+  <h2>Also worth checking</h2>
+  <p class="hint">These pairs match, but the texts did not fit in the same group, because each one does not match every member of the other's group.</p>
+  <ul class="notes">
+  {% for n in notes %}
+    <li><span>{{ n.a }} <span class="amp">&amp;</span> {{ n.b }}</span>
+        <span class="right">{{ "%.1f"|format(n.score) }} / 100 · {{ n.words }}</span></li>
+  {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+{% if alone %}
+<section class="card">
+  <h2>Not in any group</h2>
+  <ul class="plain">{% for name in alone %}<li>{{ name }}</li>{% endfor %}</ul>
+</section>
+{% endif %}
+{% if tree %}
+<section class="card tree">
+  <h2>How the texts join</h2>
+  <p class="hint">Texts that join further left are more alike. Joins left of the green line are likely the same author; between the green and amber lines, possibly. Hover over a title or a join to see more.</p>
+  {{ tree|safe }}
+</section>
+{% endif %}
+{% endblock %}

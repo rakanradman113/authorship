@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% set active = 'collection' %}
+{% block title %}Text collection{% endblock %}
+{% block content %}
+<h1>Text collection</h1>
+<p class="summary">{{ texts|length }} texts · {{ ready }} ready · {{ texts|length - ready }} too short ({{ min_words }}+ words needed)</p>
+
+{% if error %}<div class="notice error">{{ error }}</div>{% endif %}
+{% if message %}<div class="notice {{ level }}">{{ message }}</div>{% endif %}
+{% if unusual %}
+<div class="notice warning">
+  {% if unusual|length == 1 %}<strong>{{ unusual[0] }}</strong> is very unlike every other text{% else %}<strong>{{ unusual|join(", ") }}</strong> are very unlike every other text{% endif %}
+  (for example a list, a table or a different language). Texts like this can make the other texts look more alike than they are. Consider removing {{ "it" if unusual|length == 1 else "them" }}.
+</div>
+{% endif %}
+
+
+<div class="columns">
+  <section class="card">
+    <h2>Your texts</h2>
+    {% if texts %}
+    <table class="texts">
+      <thead><tr><th>Title</th><th class="right">Words</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+      {% for t in texts %}
+        <tr>
+          <td>{{ t.name }}</td>
+          <td class="right">{{ "{:,}".format(t.word_count) }}</td>
+          <td>
+            {% if t.name in unusual %}<span class="pill short" title="Very unlike every other text">Unusual</span>
+            {% elif t.included %}<span class="pill ok">Ready</span>
+            {% else %}<span class="pill short" title="{{ t.reason }}">Too short</span>{% endif %}
+          </td>
+          <td class="right">
+            <form method="post" action="{{ url_for('remove', index=loop.index0) }}">
+              <button class="link" type="submit" aria-label="Remove {{ t.name }}">Remove</button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <details class="clear-all">
+      <summary>Remove all texts</summary>
+      <form method="post" action="{{ url_for('clear') }}" class="confirm">
+        <span>Are you sure? This removes all {{ texts|length }} texts.</span>
+        <button class="danger" type="submit">Yes, remove all</button>
+      </form>
+    </details>
+    {% else %}
+    <p class="empty">No texts yet. Add some using the panel on the right.</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h2>Add to the collection</h2>
+    <form method="post" action="{{ url_for('add_files') }}" enctype="multipart/form-data">
+      <label>Upload .txt files</label>
+      <input type="file" name="files" accept=".txt" multiple>
+      <button class="primary" type="submit">Add files</button>
+    </form>
+    <div class="or">or</div>
+    <form method="post" action="{{ url_for('add_paste') }}">
+      <label for="title">Text title</label>
+      <input id="title" name="title" placeholder="e.g. Letter to the curator, 1888">
+      <label for="body">Transcription</label>
+      <textarea id="body" name="body" rows="8" placeholder="Paste the original transcription here. Keep punctuation and spelling intact."></textarea>
+      <p class="hint">Recommended: {{ min_words }}+ words per text. Paste the main text only, without a contents page or editor's notes.</p>
+      <button class="primary" type="submit">Add text</button>
+    </form>
+  </section>
+</div>
+{% endblock %}
