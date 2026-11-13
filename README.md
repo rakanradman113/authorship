@@ -11,7 +11,8 @@ Step 6 done: all pairs scored and labeled (likely 65+, possible 60+; set after t
 Step 7 done: hierarchical clustering (complete linkage by default, average available).
 Step 8 done: groups (cut at the possible line, likely subgroups at the likely line) and notes for split pairs.
 Step 9 built: Text collection, Compare texts, Authorship groups (with the tree).
-Step 10: testing tools built (random-text generator, evaluation); real-book set comes in Phase 4.
+Step 10 done: testing tools (random-text generator, evaluation).
+Phase 4 done: real-book test (17 novels by 6 authors) and final tuning.
 
 ## Folder layout
 ```
@@ -30,18 +31,20 @@ authorship/
   download_books.py     Phase 4 (testing tool): downloads the real known-author books
   templates/            Step 9: page layouts (HTML)
   static/style.css      Step 9: page styling
+  requirements.txt      packages to install (Flask)
+  .gitignore            files GitHub should ignore (.venv, real_books, ...)
   tests/
     test_text_loader.py 38 tests for Step 1
     test_features.py    56 tests for Step 2
-    test_collection.py  33 tests for Step 3
-    test_scoring.py     29 tests for Steps 4-5
+    test_collection.py  34 tests for Step 3
+    test_scoring.py     30 tests for Steps 4-5
     test_pairs.py       11 tests for Step 6
     test_clustering.py  13 tests for Step 7
-    test_grouping.py    19 tests for Step 8
+    test_grouping.py    22 tests for Step 8
     test_app_collection.py 21 tests for Step 9, Part 1
     test_app_compare.py 15 tests for Step 9, Part 2
     test_app_groups.py  11 tests for Step 9, Part 3
-    test_tree_svg.py    12 tests for Step 9, Part 4
+    test_tree_svg.py    13 tests for Step 9, Part 4
     test_tools.py       13 tests for Step 10
     test_download_books.py 6 tests for the download tool
   sample_texts/         two small sample files to try the loader on
@@ -94,3 +97,4 @@ python3 download_books.py real_books
 ```
 Then open each file and delete its contents page (the Gutenberg header and footer
 are removed by the program automatically), and run `python3 evaluate.py real_books`.
+
